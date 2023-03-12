@@ -1,7 +1,8 @@
-﻿@model List<SalesWebProject.ViewModels.DepartmentViewModel>;
+﻿@model List<SalesWebProject.ViewModels.SalesRecordViewModel>;
+@using System.Globalization;
 
 @{
-    ViewBag.Title = "Departamentos";
+    ViewBag.Title = "Vendas";
 }
 
 <div>
@@ -26,8 +27,18 @@
                     #
                 </th>
                 <th>
-                    Name
+                    Data
                 </th>
+                  <th>
+                    Valor da Venda
+                </th>
+                  <th>
+                    Status
+                </th>
+                  <th>
+                    Identificação de Venda
+                </th>
+                 
                 <th width="1%"></th>
             </tr>
         </thead>
@@ -39,8 +50,18 @@
                             @item.Id
                         </td>
                         <td>
-                            @item.Name
+                            @item.Date
                         </td>
+                        <td>
+                            @item.Amount.ToString("C", new CultureInfo("pt-Br"))
+                        </td>
+                        <td>
+                            @item.Status
+                        </td>
+                        <td>
+                            @item.SellerId
+                        </td>
+                       
                         <td class="text-nowrap">
                             <div class="btn-group" role="group">
                             <i class="bi bi-three-dots-vertical" style="font-size: 1.2rem;" data-bs-toggle="dropdown"></i>
@@ -56,3 +77,4 @@
         </tbody>
     </table>
 </div>
+

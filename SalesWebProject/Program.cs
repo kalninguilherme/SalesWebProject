@@ -8,7 +8,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<SalesContext>(options =>
     options.UseMySQL(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection"), builder => builder.MigrationsAssembly("SalesWebProject")));
 
 var app = builder.Build();
 

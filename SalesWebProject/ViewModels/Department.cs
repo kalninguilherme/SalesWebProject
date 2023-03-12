@@ -1,7 +1,9 @@
 ﻿using Microsoft.Build.Framework;
+using SalesWebProject.Enums;
+using SalesWebProject.Helpers;
 using System.ComponentModel.DataAnnotations;
 
-namespace SalesWebProject.ViewModels.DeparmentViewModel
+namespace SalesWebProject.ViewModels
 {
     public class DepartmentViewModel
     {
@@ -9,6 +11,6 @@ namespace SalesWebProject.ViewModels.DeparmentViewModel
 
         public string Name { get; set; }
 
-        public string UpperName { get { return this.Name.ToUpper(); } }
+        public List<SellerViewModel> Sellers { get; set; }
     }
 }

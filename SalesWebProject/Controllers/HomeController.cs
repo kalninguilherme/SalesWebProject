@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SalesWebProject.ViewModels.ErrorViewModel;
+using SalesWebProject.ViewModels;
 using System.Diagnostics;
 
 namespace SalesWebProject.Controllers
@@ -14,11 +14,6 @@ namespace SalesWebProject.Controllers
         }
 
         public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
         {
             return View();
         }

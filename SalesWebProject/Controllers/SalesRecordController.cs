@@ -1,29 +1,35 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SalesWebProject.Enums;
-using SalesWebProject.Helpers;
 using SalesWebProject.Models;
 using SalesWebProject.ViewModels;
-using System.Collections.Generic;
 
 namespace SalesWebProject.Controllers
 {
-    public class DepartmentsController : Controller
+    public class SalesRecordController : Controller
     {
         private SalesContext _context;
-        public DepartmentsController(SalesContext context)
+
+        public SalesRecordController(SalesContext context)
         {
             this._context = context;
         }
 
         public ActionResult Index()
         {
-            List<DepartmentViewModel> list = (from m in _context.Departments
-                                              select new DepartmentViewModel
+            List<SalesRecordViewModel> list = (from m in _context.SalesRecord
+                                              select new SalesRecordViewModel
                                               {
                                                   Id = m.Id,
-                                                  Name = m.Name,
+                                                  Date = m.Date,
+                                                  Amount = m.Amount,
+                                                  Status = m.Status,    
+                                                  SellerId = m.SellerId,    
+                                                  
                                               }).ToList();
 
             return View(list);
