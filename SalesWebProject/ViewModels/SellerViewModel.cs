@@ -1,35 +1,44 @@
 ﻿using SalesWebProject.Models;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace SalesWebProject.ViewModels
 {
+    public class SellerMainViewModel
+    {
+        public string Name { get; set; }
+
+        public int Counter { get; set; }
+
+        public List<SellerViewModel> Sellers { get; set; }
+    }
+
     public class SellerViewModel
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Campo {0} requerido")]
+        [Required(ErrorMessage = "Campo {0} necessário")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Campo {0} requerido")]
-        [EmailAddress(ErrorMessage = "Enter a valid email")]
-        [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "Campo {0} necessário")]
+        [EmailAddress(ErrorMessage = "Entre com um e-mail válido")]
+        [Display(Name = "E-mail")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Campo {0} requerido")]
-        [Display(Name = "Birth Date")]
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        [Required(ErrorMessage = "Campo {0} necessário")]
+        [Display(Name = "Data de Nascimento")]
         public DateTime BirthDate { get; set; }
+        public string BirthDateString { get { return this.BirthDate.ToShortDateString(); } }
 
-        [Required(ErrorMessage = "Campo {0} requerido")]
-        [Display(Name = "Base Salary")]
-        [DisplayFormat(DataFormatString = "{0:F2}")]
+
+        [Required(ErrorMessage = "Campo {0} necessário")]
+        [Display(Name = "Salário Base")]
         public double BaseSalary { get; set; }
 
         public int DepartmentId { get; set; }
-
-        public string DepartmentName { get; set; }
 
         public Department Department { get; set; }
 

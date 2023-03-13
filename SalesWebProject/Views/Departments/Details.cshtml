@@ -1,24 +1,33 @@
 ﻿@model SalesWebProject.ViewModels.DepartmentViewModel;
 
 @{
-    ViewData["Title"] = "Details";
+    ViewBag.Title = "Detalhes";
 }
 
-<h1>Details</h1>
+<h1>@ViewBag.Title</h1>
 
 <div>
     <h4>Department</h4>
     <hr />
+    
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            Nome
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+             @(string.IsNullOrWhiteSpace(Model.Name) ? "-" : Model.Name)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            Vendedores
+        </dt>
+        <dd class = "col-sm-10">
+            @(Model.Sellers != null ? string.Join(", ", Model.Sellers.Select(m => m.Name)) : "-")
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

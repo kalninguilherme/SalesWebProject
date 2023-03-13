@@ -1,14 +1,15 @@
-﻿@model List<SalesWebProject.ViewModels.SellerViewModel>;
+﻿@model List<SalesWebProject.ViewModels.SellerMainViewModel>;
 @using System.Globalization;
 
 @{
+    int counter = 0;
     ViewBag.Title = "Vendedores";
 }
 
 <div>
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h2>@ViewBag.Title</h2>
+            <h4>@ViewBag.Title</h4>
         </div>
         <div>
             <a  asp-action="Create" class="btn btn-primary">
@@ -20,66 +21,83 @@
 
     <hr />
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th width="5%">
-                    #
-                </th>
-                <th>
-                    Name
-                </th>
-                  <th>
-                    E-mail
-                </th>
-                  <th>
-                    Data de Nascimento
-                </th>
-                  <th>
-                    Salário Base
-                </th>
-                  <th>
-                    Departamento
-                </th>
+    @foreach (var group in Model)
+    {
+        if (counter != 0)
+        {
+            <div style="margin-top: 16px;"></div>
+        }
 
-                <th width="1%"></th>
-            </tr>
-        </thead>
+        <h6>@group.Name <small>(@group.Counter)</small></h6>
+        <table class="table table-hover">
+            <thead>
+                <tr class="table-active">
+                    <th class="text-left" width="1%">
+                        #
+                    </th>
+                    <th class="text-left" width="20%">
+                        Name
+                    </th>
+                    <th class="text-left" width="20%">
+                        E-mail
+                    </th>
+                    <th class="text-left" width="10%">
+                        Data de Nascimento
+                    </th>
+                    <th class="text-left" width="10%">
+                        Salário Base
+                    </th>
+                    <th class="text-left" width="10%">
+                        Departamento
+                    </th>
 
-        <tbody>
-            @foreach (var item in Model) {
-                    <tr>
-                         <td>
-                            @item.Id
-                        </td>
-                        <td>
-                            @item.Name
-                        </td>
-                        <td>
-                            @item.Email
-                        </td>
-                        <td>
-                            @item.BirthDate
-                        </td>
-                        <td>
-                            @item.BaseSalary.ToString("C", new CultureInfo("pt-Br"))
-                        </td>
-                        <td>
-                            @item.DepartmentName
-                        </td>
+                    <th width="1%"></th>
+                </tr>
+            </thead>
 
-                        <td class="text-nowrap">
-                            <div class="btn-group" role="group">
-                            <i class="bi bi-three-dots-vertical" style="font-size: 1.2rem;" data-bs-toggle="dropdown"></i>
-                                <div class="dropdown-menu">
-                                    <a asp-action="Details"  asp-route-id="@item.Id" class="dropdown-item">Detalhes</a>
-                                    <a asp-action="Edit" asp-route-id="@item.Id"class="dropdown-item">Editar</a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id"class="dropdown-item">Deletar</a>
+            <tbody>
+                @foreach (var item in group.Sellers) {
+                        <tr>
+                             <td>
+                                @item.Id
+                            </td>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td>
+                                @item.Email
+                            </td>
+                            <td>
+                                @item.BirthDateString
+                            </td>
+                            <td>
+                                @item.BaseSalary.ToString("C", new CultureInfo("pt-Br"))
+                            </td>
+                            <td>
+                                @item.Department.Name
+                            </td>
+
+                            <td class="text-nowrap">
+                                <div class="btn-group" role="group">
+                                <i class="bi bi-three-dots-vertical" style="font-size: 1.2rem;" data-bs-toggle="dropdown"></i>
+                                    <div class="dropdown-menu">
+                                        <a asp-action="Details"  asp-route-id="@item.Id" class="dropdown-item">Detalhes</a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id"class="dropdown-item">Editar</a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id"class="dropdown-item">Deletar</a>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-            }
-        </tbody>
-    </table>
+                            </td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+        counter++;
+     }
 </div>
+
+<style>
+    .text-left {
+        text-align: left;
+        white-space: nowrap
+    }
+</style>                                        

@@ -1,0 +1,38 @@
+﻿@model SalesWebProject.ViewModels.SellerViewModel;
+
+@{
+    ViewBag.Title = string.Format("Detalhes do vendedor #{0} - {1}", Model.Id, Model.Name);
+}
+
+<h4>@ViewBag.Title</h4>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label asp-for="@Model.Name" class="control-label"></label>
+            <input readonly asp-for="@Model.Name" class="form-control" />
+        </div>
+        <div class="form-group mt-4">
+            <label asp-for="@Model.Email" class="control-label"></label>
+            <input readonly asp-for="@Model.Email" class="form-control" />
+        </div>
+        <div class="form-group mt-4">
+            <label asp-for="@Model.BirthDate" class="control-label"></label>
+            <input readonly asp-for="@Model.BirthDate" class="form-control" />
+        </div>
+        <div class="form-group mt-4">
+            <label asp-for="@Model.BaseSalary" class="control-label"></label>
+            <input readonly asp-for="@Model.BaseSalary" class="form-control" />
+        </div>
+        <div class="form-group mt-4">
+            <label asp-for="@Model.Department" class="control-label"></label>
+            <input readonly asp-for="@Model.Department.Name" class="form-control" />
+        </div>
+    </div>
+    <div class="mt-4">
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+

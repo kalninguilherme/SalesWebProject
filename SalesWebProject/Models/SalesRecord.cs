@@ -7,20 +7,6 @@ namespace SalesWebProject.Models
     [Table("SalesRecord")]
     public class SalesRecord
     {
-        public SalesRecord()
-        {
-
-        }
-
-        public SalesRecord(int id, DateTime date, double amount, SaleStatusEnum status, Seller seller)
-        {
-            Id = id;
-            Date = date;
-            Amount = amount;
-            Status = status;
-            Seller = seller;
-        }
-
         [Key]
         public int Id { get; set; }
 
@@ -33,6 +19,6 @@ namespace SalesWebProject.Models
         [ForeignKey("Seller")]
         public int SellerId { get; set; }
 
-        public Seller Seller { get; set; }
+        public virtual Seller Seller { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SalesWebProject.Enums;
 using SalesWebProject.Helpers;
@@ -20,29 +21,44 @@ namespace SalesWebProject.Controllers
         public ActionResult Index()
         {
             List<DepartmentViewModel> list = (from m in _context.Departments
+                                              orderby m.Id
                                               select new DepartmentViewModel
                                               {
                                                   Id = m.Id,
                                                   Name = m.Name,
+                                                  Sellers = (from i in m.Sellers
+                                                             select new SellerViewModel
+                                                             {
+                                                                 Id = i.Id,
+                                                                 Name = i.Name
+                                                             }).ToList()
                                               }).ToList();
 
             return View(list);
         }
 
-        public ActionResult Details(int? id)
+        public ActionResult Details(int id)
         {
-            if (id == null || _context.Departments == null)
-            {
-                return NotFound();
-            }
+            var department = _context.Departments.Include(m => m.Sellers).FirstOrDefault(m => m.Id == id);
 
-            var department = _context.Departments.FirstOrDefault(m => m.Id == id);
             if (department == null)
             {
-                return NotFound();
+                throw new Exception("Departamento não encontrado");
             }
 
-            return RedirectToAction("Index");
+            var viewModel = new DepartmentViewModel
+            {
+                Id = department.Id,
+                Name = department.Name,
+                Sellers = (from m in department.Sellers
+                           select new SellerViewModel
+                           {
+                               Id = m.Id,
+                               Name = m.Name
+                           }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Create()
@@ -123,7 +139,7 @@ namespace SalesWebProject.Controllers
             {
                 return Problem();
             }
-            var department = _context.Departments.Find(id);
+            var department = _context.Departments.FirstOrDefault(m => m.Id == id);
             if (department != null)
             {
                 _context.Departments.Remove(department);
@@ -136,6 +152,26 @@ namespace SalesWebProject.Controllers
         private bool DepartmentExists(int id)
         {
             return _context.Departments.Any(i => i.Id == id);
+        }
+
+        public static List<SelectListItem> ListAll(SalesContext context, bool addEmpty)
+        {
+            List<SelectListItem> departments = (from m in context.Departments
+                                                select new SelectListItem
+                                                {
+                                                    Text = m.Name,
+                                                    Value = m.Id.ToString()
+                                                }).ToList();
+
+            if (addEmpty)
+            {
+                departments.Insert(0, new SelectListItem
+                {
+                    Text = "Selecione",
+                    Value = "0"
+                });
+            }
+            return departments;
         }
     }
 }

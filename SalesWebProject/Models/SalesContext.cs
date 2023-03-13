@@ -8,10 +8,10 @@ namespace SalesWebProject.Models
     {
         public SalesContext(DbContextOptions<SalesContext> options) : base(options) { }
 
-        public DbSet<Department> Departments { get; set; }
+        public virtual DbSet<Department> Departments { get; set; }
 
-        public DbSet<Seller> Sellers { get; set; }
+        public virtual DbSet<Seller> Sellers { get; set; }
 
-        public DbSet<SalesRecord> SalesRecord { get; set; }
+        public virtual DbSet<SalesRecord> SalesRecord { get; set; }
     }
 }

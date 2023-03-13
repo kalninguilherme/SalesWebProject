@@ -9,9 +9,12 @@ namespace SalesWebProject.ViewModels
     {
         public int Id { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        [Display(Name = "Data")]
         public DateTime Date { get; set; }
 
+        public string DateString { get { return this.Date.ToShortDateString(); } }
+
+        [Display(Name = "Preço")]
         public double Amount { get; set; }
 
         public SaleStatusEnum Status { get; set; }

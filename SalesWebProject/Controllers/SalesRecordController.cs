@@ -48,7 +48,7 @@ namespace SalesWebProject.Controllers
                 return NotFound();
             }
 
-            return RedirectToAction("Index");
+            return View();
         }
 
         public IActionResult Create()

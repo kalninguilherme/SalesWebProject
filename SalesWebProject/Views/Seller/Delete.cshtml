@@ -1,0 +1,42 @@
+﻿@using System.Globalization;
+@model SalesWebProject.ViewModels.SellerViewModel;
+
+@{
+    ViewBag.Title = string.Format("Confimar Exclusão do Vendedor #{0} - {1}", Model.Id, Model.Name);
+}
+
+<h4>@ViewBag.Title</h4>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Delete">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="@Model.Name" class="control-label"></label>
+                <input readonly asp-for="@Model.Name" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.Email" class="control-label"></label>
+                <input readonly asp-for="@Model.Email" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.BaseSalary" class="control-label"></label>
+                <input readonly value="@Model.BaseSalary.ToString("C", new CultureInfo("pt-Br"))" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.Department" class="control-label"></label>
+                <input readonly asp-for="@Model.Department.Name" class="form-control" />
+            </div>
+            <div class="d-flex justify-content-between align-items-center form-group mt-4">
+                <div>
+                    <a asp-action="Index" class="btn btn-outline-primary" style="font-size: 1.2rem">Voltar</a>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-outline-primary" style="font-size: 1.2rem">Exlcuir</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
