@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SalesWebProject.Models;
+using SalesWebProject.Services;
 using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);

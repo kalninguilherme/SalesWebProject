@@ -4,6 +4,8 @@ namespace SalesWebProject.ViewModels
     {
         public string RequestId { get; set; }
 
+        public string Message { get; set; }
+
         public bool ShowRequestId { get { return !string.IsNullOrEmpty(RequestId); } }
     }
 }

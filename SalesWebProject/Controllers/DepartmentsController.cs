@@ -12,10 +12,10 @@ namespace SalesWebProject.Controllers
 {
     public class DepartmentsController : Controller
     {
-        private SalesContext _context;
+        private readonly SalesContext _context;
         public DepartmentsController(SalesContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public ActionResult Index()
@@ -78,7 +78,7 @@ namespace SalesWebProject.Controllers
 
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         public ActionResult Edit(int id)

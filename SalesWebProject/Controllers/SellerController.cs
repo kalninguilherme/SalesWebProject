@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using SalesWebProject.Models;
+using SalesWebProject.Services;
 using SalesWebProject.ViewModels;
+using System.Diagnostics;
 
 namespace SalesWebProject.Controllers
 {
@@ -10,46 +13,56 @@ namespace SalesWebProject.Controllers
     {
         private SalesContext _context;
 
+        private readonly SellerService _sellerService;
+
         public SellerController(SalesContext context)
         {
             this._context = context;
+            this._sellerService = new SellerService(context);
         }
 
-        public ActionResult Index()
+        public IActionResult Index()
         {
-            List<SellerMainViewModel> list = (from m in _context.Sellers
-                                              group m by new { m.Department.Id, m.Department.Name } into g
-                                              orderby g.Key.Name
-                                              select new SellerMainViewModel
-                                              {
-                                                  Name = g.Key.Name,
-                                                  Counter = g.Count(i => i.DepartmentId == g.Key.Id),
+            var list = _sellerService.GetSellers();
 
-                                                  Sellers = (from m in g.ToList()
-                                                             orderby m.Name
-                                                             select new SellerViewModel
-                                                             {
-                                                                 Id = m.Id,
-                                                                 Name = m.Name,
-                                                                 Email = m.Email,
-                                                                 BirthDate = m.BirthDate,
-                                                                 BaseSalary = m.BaseSalary,
-                                                                 Department = m.Department
-                                                             }).ToList()
-                                              }).ToList();
+            //List<SellerMainViewModel> list = (from m in _context.Sellers
+            //                                  group m by new { m.Department.Id, m.Department.Name } into g
+            //                                  orderby g.Key.Name
+            //                                  select new SellerMainViewModel
+            //                                  {
+            //                                      Name = g.Key.Name,
+            //                                      Counter = g.Count(i => i.DepartmentId == g.Key.Id),
+            //                                      Sellers = (from m in g.ToList()
+            //                                                 orderby m.Name
+            //                                                 select new SellerViewModel
+            //                                                 {
+            //                                                     Id = m.Id,
+            //                                                     Name = m.Name,
+            //                                                     Email = m.Email,
+            //                                                     BirthDate = m.BirthDate,
+            //                                                     BaseSalary = m.BaseSalary,
+            //                                                     Department = m.Department
+            //                                                 }).ToList()
+            //                                  }).ToList();
+            //List<SellerMainViewModel> a = list.Skip(2).Take(3).ToList();
+            //return View(a);
 
-            List<SellerMainViewModel> a = list.Skip(2).Take(3).ToList();
-
-            return View(a);
+            return View(list);
         }
 
         public ActionResult Details(int id)
         {
+            if (id == 0)
+            {
+                return RedirectToAction(nameof(Error), new { message = string.Format("Identificador #{0} não encontrado", id) });
+
+            }
+
             var seller = _context.Sellers.Include(m => m.Department).FirstOrDefault(m => m.Id == id);
 
             if (seller == null)
             {
-                throw new Exception("Departamento não encontrado");
+                return RedirectToAction(nameof(Error), new { message ="Vendedor não encontrado"});
             }
 
             var viewModel = new SellerViewModel
@@ -74,16 +87,22 @@ namespace SalesWebProject.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(SellerViewModel viewModel)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    return View(item);
+            //}
             if (string.IsNullOrWhiteSpace(viewModel.Name))
             {
-                throw new Exception("Nome não informado");
+                return RedirectToAction(nameof(Error), new { message = "Nome não informado" });
             }
 
             if (string.IsNullOrWhiteSpace(viewModel.Email))
             {
-                throw new Exception("E-mail não informado");
+                return RedirectToAction(nameof(Error), new { message = "E-mail não informado" });
+
             }
 
             var seller = new Seller
@@ -104,10 +123,16 @@ namespace SalesWebProject.Controllers
         [HttpGet]
         public ActionResult Edit(int id)
         {
+            if (id == 0)
+            {
+                return RedirectToAction(nameof(Error), new { message = string.Format("Identificador #{0} não encontrado", id) });
+
+            }
+
             var seller = _context.Sellers.Include(m => m.Department).FirstOrDefault(m => m.Id == id);
             if (seller == null)
             {
-                throw new Exception("Vendedor não encontrado");
+                return RedirectToAction(nameof(Error), new { message = "Vendedor não fornecido" });
             }
 
             var item = new SellerViewModel
@@ -127,12 +152,13 @@ namespace SalesWebProject.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Edit(SellerViewModel viewModel)
         {
             var seller = _context.Sellers.FirstOrDefault(m => m.Id == viewModel.Id);
             if (seller == null)
             {
-                throw new Exception("Vendedor não encontrado");
+                return RedirectToAction(nameof(Error), new { message = "Vendedor não fornecido" });
             }
 
             seller.Name = viewModel.Name;
@@ -151,13 +177,14 @@ namespace SalesWebProject.Controllers
         {
             if (id == 0)
             {
-                throw new Exception(string.Format("Identificador #{0} não encontrado", id));
+                return RedirectToAction(nameof(Error), new { message = string.Format("Identificador #{0} não encontrado", id) });
+
             }
 
             var seller = _context.Sellers.Include(m => m.Department).FirstOrDefault(m => m.Id == id);
             if (seller == null)
             {
-                throw new Exception("Vendedor não encontrado");
+                return RedirectToAction(nameof(Error), new { message = "Vendedor não fornecido" });
             }
 
             var viewModel = new SellerViewModel
@@ -184,6 +211,16 @@ namespace SalesWebProject.Controllers
 
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
+        }
+
+        public ActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };
+            return View(viewModel);
         }
     }
 }

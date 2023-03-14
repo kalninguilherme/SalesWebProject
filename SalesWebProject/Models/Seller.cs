@@ -7,6 +7,7 @@ namespace SalesWebProject.Models
     [Table("Seller")]
     public class Seller
     {
+        [Key]
         public int Id { get; set; }
 
         public string Name { get; set; }

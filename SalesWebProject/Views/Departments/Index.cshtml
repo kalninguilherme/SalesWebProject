@@ -10,7 +10,7 @@
             <h2>@ViewBag.Title</h2>
         </div>
         <div>
-            <a  asp-action="Create" class="btn btn-primary">
+            <a asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i>
                 Novo
             </a>
@@ -27,31 +27,32 @@
                 </th>
                 <th>
                     Name
-                </th> 
+                </th>
                 <th width="1%"></th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach (var item in Model) {
-                    <tr>
-                         <td>
-                            @item.Id
-                        </td>
-                        <td> 
-                            @item.Name
-                        </td> 
-                        <td class="text-nowrap">
-                            <div class="btn-group" role="group">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.Id
+                    </td>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td class="text-nowrap">
+                        <div class="btn-group" role="group">
                             <i class="bi bi-three-dots-vertical" style="font-size: 1.2rem;" data-bs-toggle="dropdown"></i>
-                                <div class="dropdown-menu">
-                                    <a asp-action="Details"  asp-route-id="@item.Id" class="dropdown-item">Detalhes</a>
-                                    <a asp-action="Edit" asp-route-id="@item.Id"class="dropdown-item">Editar</a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id"class="dropdown-item">Deletar</a>
-                                </div>
+                            <div class="dropdown-menu">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">Detalhes</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="dropdown-item">Deletar</a>
                             </div>
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
