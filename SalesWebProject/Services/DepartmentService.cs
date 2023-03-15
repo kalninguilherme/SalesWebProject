@@ -13,7 +13,7 @@ namespace SalesWebProject.Services
             _context = context;
         }
 
-        public List<Department> FindAll()
+        public List<Departments> FindAll()
         {
             return _context.Departments.OrderBy(x => x.Name).ToList();
         }

@@ -1,4 +1,4 @@
-﻿@model List<SalesWebProject.ViewModels.SellerMainViewModel>;
+﻿@model List<SalesWebProject.ViewModels.SellersMainViewModel>;
 @using System.Globalization;
 
 @{
@@ -28,7 +28,8 @@
             <div style="margin-top: 16px;"></div>
         }
 
-        <h6>@group.Name <small>(@group.Counter)</small></h6>
+        <h6>Depto: @group.Name <small>(@group.Counter)</small></h6>
+
         <table class="table table-hover">
             <thead>
                 <tr class="table-active">
@@ -46,7 +47,12 @@
                     </th>
                     <th class="text-left" width="10%">
                         Salário Base
-                    </th>
+                        <div class="btn-group align-baseline" role="group">
+                            <i class="bi bi-card-text" style="font-size: 0.85rem;" data-bs-toggle="dropdown"></i>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item">Salário base total do(s) vendedor(es) do depto "@group.Name": @group.SumSalary.ToString("C", new CultureInfo("pt-Br"))</a></div></div>
+
+                                </th>
                     <th class="text-left" width="10%">
                         Departamento
                     </th>
@@ -69,7 +75,7 @@
                             @item.Email
                         </td>
                         <td>
-                            @item.BirthDate
+                            @item.BirthDateString
                         </td>
                         <td>
                             @item.BaseSalary.ToString("C", new CultureInfo("pt-Br"))

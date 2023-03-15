@@ -1,4 +1,4 @@
-﻿@model List<SalesWebProject.ViewModels.SalesRecordViewModel>;
+﻿@model List<SalesWebProject.ViewModels.SalesRecordsViewModel>;
 @using System.Globalization;
 
 @{
@@ -59,7 +59,7 @@
                             @item.Status
                         </td>
                         <td>
-                            @item.SellerId
+                            @item.Seller.Name
                         </td>
                        
                         <td class="text-nowrap">

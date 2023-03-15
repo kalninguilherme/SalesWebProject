@@ -10,25 +10,29 @@ using SalesWebProject.ViewModels;
 
 namespace SalesWebProject.Controllers
 {
-    public class SalesRecordController : Controller
+    public class SalesRecordsController : Controller
     {
         private SalesContext _context;
 
-        public SalesRecordController(SalesContext context)
+        public SalesRecordsController(SalesContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public ActionResult Index()
         {
-            List<SalesRecordViewModel> list = (from m in _context.SalesRecord
-                                              select new SalesRecordViewModel
+            List<SalesRecordsViewModel> list = (from m in _context.SalesRecord
+                                              select new SalesRecordsViewModel
                                               {
                                                   Id = m.Id,
                                                   Date = m.Date,
                                                   Amount = m.Amount,
                                                   Status = m.Status,    
-                                                  SellerId = m.SellerId,    
+                                                  Seller = new Seller
+                                                  {
+                                                      Id = m.Seller.Id,
+                                                      Name = m.Seller.Name
+                                                  }   
                                                   
                                               }).ToList();
 
@@ -79,7 +83,7 @@ namespace SalesWebProject.Controllers
                 throw new Exception("Departamento não encontrado");
             }
 
-            var item = new DepartmentViewModel
+            var item = new DepartmentsViewModel
             {
                 Id = department.Id,
                 Name = department.Name,
@@ -89,7 +93,7 @@ namespace SalesWebProject.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(DepartmentViewModel viewModel)
+        public ActionResult Edit(DepartmentsViewModel viewModel)
         {
             var department = _context.Departments.FirstOrDefault(m => m.Id == viewModel.Id);
             if (department == null)
@@ -112,7 +116,7 @@ namespace SalesWebProject.Controllers
                 throw new Exception("Departamento não encontrado");
             }
 
-            var item = new DepartmentViewModel
+            var item = new DepartmentsViewModel
             {
                 Id = department.Id,
                 Name = department.Name,

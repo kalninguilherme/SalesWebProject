@@ -8,16 +8,18 @@ using System.Xml.Linq;
 
 namespace SalesWebProject.ViewModels
 {
-    public class SellerMainViewModel
+    public class SellersMainViewModel
     {
         public string Name { get; set; }
 
         public int Counter { get; set; }
 
-        public List<SellerViewModel> Sellers { get; set; }
+        public double SumSalary { get; set; }
+
+        public List<SellersViewModel> Sellers { get; set; }
     }
 
-    public class SellerViewModel
+    public class SellersViewModel
     {
         public int Id { get; set; }
 
@@ -33,8 +35,11 @@ namespace SalesWebProject.ViewModels
 
         [Required(ErrorMessage = "Campo {0} necessário")]
         [Display(Name = "Data de Nascimento")]
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "0:dd/MM/yyyy")]
+
         public DateTime BirthDate { get; set; }
+
         public string BirthDateString { get { return this.BirthDate.ToShortDateString(); } }
 
 
@@ -48,9 +53,10 @@ namespace SalesWebProject.ViewModels
         public int DepartmentId { get; set; }
 
         [Display(Name = "Departamento")]
+        [Required(ErrorMessage = "Departamento Necessário")]
         public Department Department { get; set; }
 
-        public List<SalesRecordViewModel> Sales { get; set; } = new List<SalesRecordViewModel>();
+        public List<SalesRecordsViewModel> Sales { get; set; } = new List<SalesRecordsViewModel>();
 
         public double TotalSales(DateTime initial, DateTime final)
         {

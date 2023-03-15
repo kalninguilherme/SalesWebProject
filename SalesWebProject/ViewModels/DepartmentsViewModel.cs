@@ -6,13 +6,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SalesWebProject.ViewModels
 {
-    public class DepartmentViewModel
+    public class DepartmentsViewModel
     {
         public int Id { get; set; }
 
         [Display(Name = "Nome")]
         public string Name { get; set; }
 
-        public List<SellerViewModel> Sellers { get; set; } = new List<SellerViewModel>();
+        public List<SellersViewModel> Sellers { get; set; } = new List<SellersViewModel>();
     }
 }
