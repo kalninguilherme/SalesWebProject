@@ -7,89 +7,132 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SalesWebProject.Models;
 using SalesWebProject.ViewModels;
+using System.Diagnostics;
+using Mysqlx;
+using SalesWebProject.Enums;
+using SalesWebProject.Helpers;
 
 namespace SalesWebProject.Controllers
 {
     public class SalesRecordsController : Controller
     {
-        private SalesContext _context;
-
+        private readonly SalesContext _context;
         public SalesRecordsController(SalesContext context)
         {
             _context = context;
         }
 
+        // Organizar os view das vendas
         public ActionResult Index()
         {
             List<SalesRecordsViewModel> list = (from m in _context.SalesRecord
-                                              select new SalesRecordsViewModel
-                                              {
-                                                  Id = m.Id,
-                                                  Date = m.Date,
-                                                  Amount = m.Amount,
-                                                  Status = m.Status,    
-                                                  Seller = new Seller
-                                                  {
-                                                      Id = m.Seller.Id,
-                                                      Name = m.Seller.Name
-                                                  }   
-                                                  
-                                              }).ToList();
+                                                select new SalesRecordsViewModel
+                                                {
+                                                    Id = m.Id,
+                                                    Date = m.Date,
+                                                    Amount = m.Amount,
+                                                    Status = m.Status,
+                                                    Seller = new Seller
+                                                    {
+                                                        Id = m.Seller.Id,
+                                                        Name = m.Seller.Name
+                                                    }
+
+                                                }).ToList();
 
             return View(list);
         }
 
+        [HttpGet]
         public ActionResult Details(int? id)
         {
-            if (id == null || _context.Departments == null)
+
+            if (id == 0 || id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = string.Format("Identificador #{0} não encontrado", id) });
+
             }
 
-            var department = _context.Departments.FirstOrDefault(m => m.Id == id);
-            if (department == null)
+            var saleRecord = _context.SalesRecord.Include(m => m.Seller).FirstOrDefault(m => m.Id == id);
+            if (saleRecord == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Vendedor não encontrado" });
             }
 
-            return View();
+            var salesRecordView = new SalesRecordsViewModel
+            {
+                Id = saleRecord.Id,
+                Date = saleRecord.Date,
+                Amount = saleRecord.Amount,
+                Status = saleRecord.Status,
+                Seller = new Seller
+                {
+                    Id = saleRecord.Seller.Id,
+                    Name = saleRecord.Seller.Name
+                }
+            };
+
+            return View(salesRecordView);
         }
 
-        public IActionResult Create()
+        [HttpGet]
+        public ActionResult Create()
         {
+            var sellers = SellersController.ListAll(_context, true);
+            ViewBag.Sellers = new SelectList(sellers, "Value", "Text");
             return View();
 
         }
 
         [HttpPost]
-        public ActionResult Create(Department department)
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(SalesRecordsViewModel viewModel)
         {
-            if (department.Name.Count() < 2)
+            if (viewModel.SellerId == 0)
             {
-                throw new Exception("Nome Inválido");
+                return RedirectToAction(nameof(Error), new { message = "Vendedor inválido" });
             }
-            _context.Add(department);
 
+            var saleRecord = new SalesRecord
+            {
+                Date = viewModel.Date,
+                Amount = viewModel.Amount,
+                Status = SaleStatusEnum.Pending,
+                SellerId = viewModel.SellerId,
+            };
+
+            _context.SalesRecord.Add(saleRecord);
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
         public ActionResult Edit(int id)
         {
-            var department = _context.Departments.FirstOrDefault(m => m.Id == id);
-            if (department == null)
+            var saleRecord = _context.SalesRecord.FirstOrDefault(m => m.Id == id);
+            if (saleRecord == null)
             {
                 throw new Exception("Departamento não encontrado");
             }
 
-            var item = new DepartmentsViewModel
+            var viewModel = new SalesRecordsViewModel
             {
-                Id = department.Id,
-                Name = department.Name,
+                Id = saleRecord.Id,
+                Date = saleRecord.Date,
+                Amount = saleRecord.Amount,
+                Status = saleRecord.Status,
+                SellerId = saleRecord.SellerId,
             };
 
-            return View(item);
+            var enums = EnumHelpers.GenerateSelectList<SaleStatusEnum>();
+            ViewBag.Status = new SelectList(enums, "Value", "Text");
+
+            var sellers = SellersController.ListAll(_context, true);
+            ViewBag.Sellers = new SelectList(sellers, "Value", "Text");
+
+            return View(viewModel);
+
         }
 
         [HttpPost]

@@ -3,13 +3,16 @@
     ViewBag.Title = "Erro";
 }
 
-<h1 class="text-danger">@ViewBag.Title</h1>
-<h2 class="text-danger">@Model.Message</h2>
+<div class="container">
+    <h1 class="text-danger">Erro ao processar esta requisição</h1>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+    <h4 class="mt-4">@Model.Message</h4>
+
+    @if (Model.ShowRequestId)
+    {
+        <p class="mt-4">
+            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
+</div>
 

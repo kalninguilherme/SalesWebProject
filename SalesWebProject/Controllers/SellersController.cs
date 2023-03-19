@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Mysqlx;
 using SalesWebProject.Models;
 using SalesWebProject.ViewModels;
 using System.Diagnostics;
@@ -11,9 +12,7 @@ namespace SalesWebProject.Controllers
 {
     public class SellersController : Controller
     {
-        private SalesContext _context;
-
-
+        private readonly SalesContext _context;
         public SellersController(SalesContext context)
         {
             _context = context;
@@ -55,7 +54,6 @@ namespace SalesWebProject.Controllers
             }
 
             var seller = _context.Sellers.Include(m => m.Department).FirstOrDefault(m => m.Id == id);
-
             if (seller == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Vendedor não encontrado" });
@@ -185,24 +183,43 @@ namespace SalesWebProject.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(SellersViewModel viewModel)
         {
-            var seller = _context.Sellers.FirstOrDefault(m => m.Id == viewModel.Id);
-            if (seller != null)
+            try
             {
+                var seller = _context.Sellers.FirstOrDefault(m => m.Id == viewModel.Id);
+                if (seller == null)
+                {
+                    throw new Exception("Vendedor não encontrado");
+                }
+
                 _context.Sellers.Remove(seller);
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
-        }
-
-        public ActionResult Error(string message)
-        {
-            var error = new ErrorViewModel
+            catch (DbUpdateException)
             {
-                Message = message,
-                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-            };
-            return View(error);
+                return RedirectToAction(nameof(Error), new { message = string.Format("Não foi possível deletar este item em razão de chaves primárias no banco de dados") });
+            }
         }
+
+        public static List<SelectListItem> ListAll(SalesContext context, bool addEmpty)
+        {
+            var departments = (from m in context.Sellers
+                               select new SelectListItem
+                               {
+                                   Text = m.Name,
+                                   Value = m.Id.ToString()
+                               }).ToList();
+            if (addEmpty)
+            {
+                departments.Insert(0, new SelectListItem
+                {
+                    Text = "Selecione",
+                    Value = "0"
+                });
+            }
+            return departments;
+        }
+
     }
 }

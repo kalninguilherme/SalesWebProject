@@ -1,32 +1,35 @@
 ﻿@model SalesWebProject.ViewModels.DepartmentsViewModel;
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = string.Format("Editar Departamento #{0}: {1}", Model.Id, Model.Name);
 }
 
-<h1>@ViewBag.Title</h1>
+<div class="container">
+    <h4>@ViewBag.Title</h4>
 
-<h4>Department</h4>
+    <hr style="margin-bottom: 0.5rem !important;" />
 
-<hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-controller="Departments" asp-action="Edit">
+                <div class="form-group">
+                    <label asp-for="@Model.Name" class="control-label"></label>
+                    <input asp-for="@Model.Name" class="form-control" />
+                    <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            @Html.HiddenFor(m => m.Id)
-
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-            </div>
-
-            <div class="form-group mt-2">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="d-flex justify-content-between align-items-center form-group mt-4">
+                    <a asp-action="Index" class="btn btn-outline-primary" style="font-size: 1.2rem">Retornar</a>
+                    <button type="submit" class="btn btn-outline-primary" style="font-size: 1.2rem">Salvar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

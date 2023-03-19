@@ -6,7 +6,7 @@
     ViewBag.Title = "Vendedores";
 }
 
-<div>
+<div class="container">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h4>@ViewBag.Title</h4>
@@ -36,27 +36,26 @@
                     <th class="text-left" width="1%">
                         #
                     </th>
-                    <th class="text-left" width="20%">
+                    <th class="text-left" width="25%">
                         Name
                     </th>
-                    <th class="text-left" width="20%">
+                    <th class="text-left" width="25%">
                         E-mail
                     </th>
                     <th class="text-left" width="10%">
-                        Data de Nascimento
+                        Data de Nasc.
                     </th>
                     <th class="text-left" width="10%">
                         Salário Base
-                        <div class="btn-group align-baseline" role="group">
-                            <i class="bi bi-card-text" style="font-size: 0.85rem;" data-bs-toggle="dropdown"></i>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item">Salário base total do(s) vendedor(es) do depto "@group.Name": @group.SumSalary.ToString("C", new CultureInfo("pt-Br"))</a></div></div>
-
-                                </th>
+                        <i class="bi bi-info-circle"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           data-bs-original-title="Total do Dpto: @group.SumSalary.ToString("C", new CultureInfo("pt-Br"))">
+                        </i>
+                    </th>
                     <th class="text-left" width="10%">
                         Departamento
                     </th>
-
                     <th width="1%"></th>
                 </tr>
             </thead>
@@ -101,6 +100,15 @@
         counter++;
     }
 </div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}
 
 <style>
     .text-left {

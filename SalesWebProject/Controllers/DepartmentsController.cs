@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Mysqlx;
 using SalesWebProject.Models;
 using SalesWebProject.ViewModels;
+using System.Linq.Expressions;
 
 namespace SalesWebProject.Controllers
 {
@@ -17,22 +19,23 @@ namespace SalesWebProject.Controllers
         public ActionResult Index()
         {
             List<DepartmentsViewModel> list = (from m in _context.Departments
-                                              orderby m.Id
-                                              select new DepartmentsViewModel
-                                              {
-                                                  Id = m.Id,
-                                                  Name = m.Name,
-                                                  Sellers = (from i in m.Sellers
-                                                             select new SellersViewModel
-                                                             {
-                                                                 Id = i.Id,
-                                                                 Name = i.Name
-                                                             }).ToList()
-                                              }).ToList();
+                                               orderby m.Id
+                                               select new DepartmentsViewModel
+                                               {
+                                                   Id = m.Id,
+                                                   Name = m.Name,
+                                                   Sellers = (from i in m.Sellers
+                                                              select new SellersViewModel
+                                                              {
+                                                                  Id = i.Id,
+                                                                  Name = i.Name
+                                                              }).ToList()
+                                               }).ToList();
 
             return View(list);
         }
 
+        [HttpGet]
         public ActionResult Details(int id)
         {
             var department = _context.Departments.Include(m => m.Sellers).FirstOrDefault(m => m.Id == id);
@@ -57,26 +60,27 @@ namespace SalesWebProject.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Create()
+        public ActionResult Create()
         {
             return View();
-
         }
 
         [HttpPost]
-        public ActionResult Create(Department department)
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(DepartmentsViewModel viewModel)
         {
-            if (department.Name.Count() < 2)
+            var department = new Department
             {
-                throw new Exception("Nome Inválido");
-            }
-            _context.Add(department);
+                Name = viewModel.Name,
+            };
 
+            _context.Add(department);
             _context.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             var department = _context.Departments.FirstOrDefault(m => m.Id == id);
@@ -85,16 +89,17 @@ namespace SalesWebProject.Controllers
                 throw new Exception("Departamento não encontrado");
             }
 
-            var item = new DepartmentsViewModel
+            var viewModel = new DepartmentsViewModel
             {
                 Id = department.Id,
                 Name = department.Name,
             };
 
-            return View(item);
+            return View(viewModel);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Edit(DepartmentsViewModel viewModel)
         {
             var department = _context.Departments.FirstOrDefault(m => m.Id == viewModel.Id);
@@ -118,36 +123,37 @@ namespace SalesWebProject.Controllers
                 throw new Exception("Departamento não encontrado");
             }
 
-            var item = new DepartmentsViewModel
+            var viewModel = new DepartmentsViewModel
             {
                 Id = department.Id,
                 Name = department.Name,
             };
 
-            return View(item);
+            return View(viewModel);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(DepartmentsViewModel viewModel)
         {
-            if (_context.Departments == null)
+            try
             {
-                return Problem();
-            }
-            var department = _context.Departments.FirstOrDefault(m => m.Id == id);
-            if (department != null)
-            {
+                var department = _context.Departments.FirstOrDefault(m => m.Id == viewModel.Id);
+                if (department == null)
+                {
+                    throw new Exception("Vendedor não encontrado");
+                }
+
                 _context.Departments.Remove(department);
+                _context.SaveChanges();
+
+                return RedirectToAction("Index");
             }
 
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
-        private bool DepartmentExists(int id)
-        {
-            return _context.Departments.Any(i => i.Id == id);
+            catch (DbUpdateException)
+            {
+                return RedirectToAction(nameof(Error), new { message = string.Format("Não foi possível deletar este item em razão de chaves primárias no banco de dados") });
+            }
         }
 
         public static List<SelectListItem> ListAll(SalesContext context, bool addEmpty)

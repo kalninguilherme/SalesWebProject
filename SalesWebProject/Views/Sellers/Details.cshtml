@@ -1,39 +1,41 @@
 ﻿@model SalesWebProject.ViewModels.SellersViewModel;
 
 @{
-    ViewBag.Title = string.Format("Detalhes do vendedor #{0} - {1}", Model.Id, Model.Name);
+    ViewBag.Title = string.Format("Detalhes do(a) vendedor(a) #{0} - {1}", Model.Id, Model.Name);
 }
 
-<h4>@ViewBag.Title</h4>
+<div class="container">
+    <h4>@ViewBag.Title</h4>
 
-<hr />
+    <hr style="margin-bottom: 0.5rem !important;" />
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label asp-for="@Model.Name" class="control-label"></label>
-            <input readonly asp-for="@Model.Name" class="form-control" />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="@Model.Name" class="control-label"></label>
+                <input readonly asp-for="@Model.Name" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.Email" class="control-label"></label>
+                <input readonly asp-for="@Model.Email" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.BirthDate" class="control-label"></label>
+                <input readonly asp-for="@Model.BirthDateString" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.BaseSalary" class="control-label"></label>
+                <input readonly asp-for="@Model.BaseSalaryMonetary" class="form-control" />
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="@Model.Department" class="control-label"></label>
+                <input readonly asp-for="@Model.Department.Name" class="form-control" />
+            </div>
+            <div class="d-flex justify-content-between align-items-center form-group mt-4">
+                    <a class="btn btn-outline-primary" style="font-size: 1.2rem" asp-action="Index">Retornar</a>
+                    <a class="btn btn-outline-primary" style="font-size: 1.2rem" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+            </div>
         </div>
-        <div class="form-group mt-4">
-            <label asp-for="@Model.Email" class="control-label"></label>
-            <input readonly asp-for="@Model.Email" class="form-control" />
-        </div>
-        <div class="form-group mt-4">
-            <label asp-for="@Model.BirthDate" class="control-label"></label>
-            <input readonly asp-for="@Model.BirthDateString" class="form-control" />
-        </div>
-        <div class="form-group mt-4">
-            <label asp-for="@Model.BaseSalary" class="control-label"></label>
-            <input readonly asp-for="@Model.BaseSalaryMonetary" class="form-control" />
-        </div>
-        <div class="form-group mt-4">
-            <label asp-for="@Model.Department" class="control-label"></label>
-            <input readonly asp-for="@Model.Department.Name" class="form-control" />
-        </div>
-    </div>
-    <div class="mt-4">
-        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-        <a asp-action="Index">Retornar</a>
     </div>
 </div>
 
