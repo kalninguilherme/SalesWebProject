@@ -18,7 +18,7 @@ namespace SalesWebProject.Controllers
 
         public ActionResult Index()
         {
-            List<DepartmentsViewModel> list = (from m in _context.Departments
+            List<DepartmentsViewModel> list = (from m in _context.Departments.AsNoTracking()
                                                orderby m.Id
                                                select new DepartmentsViewModel
                                                {
@@ -33,31 +33,6 @@ namespace SalesWebProject.Controllers
                                                }).ToList();
 
             return View(list);
-        }
-
-        [HttpGet]
-        public ActionResult Details(int id)
-        {
-            var department = _context.Departments.Include(m => m.Sellers).FirstOrDefault(m => m.Id == id);
-
-            if (department == null)
-            {
-                throw new Exception("Departamento não encontrado");
-            }
-
-            var viewModel = new DepartmentsViewModel
-            {
-                Id = department.Id,
-                Name = department.Name,
-                Sellers = (from m in department.Sellers
-                           select new SellersViewModel
-                           {
-                               Id = m.Id,
-                               Name = m.Name
-                           }).ToList()
-            };
-
-            return View(viewModel);
         }
 
         public ActionResult Create()

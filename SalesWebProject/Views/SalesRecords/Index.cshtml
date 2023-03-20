@@ -1,80 +1,193 @@
-﻿@model List<SalesWebProject.ViewModels.SalesRecordsViewModel>;
+﻿@model SalesWebProject.ViewModels.SalesRecordsMainViewModel;
+@using SalesWebProject.Helpers;
 @using System.Globalization;
+@using SalesWebProject.ViewModels;
 
 @{
     ViewBag.Title = "Vendas";
 }
 
-<div>
+<div class="container-fluid-content">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h2>@ViewBag.Title</h2>
         </div>
         <div>
-            <a  asp-action="Create" class="btn btn-primary">
+            <a asp-controller="SalesRecords" asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i>
                 Novo
             </a>
         </div>
     </div>
 
-    <hr />
+    <div class="d-lg-flex mt-2">
+        <div class="container-box filter-divisor">
+            <form asp-action="Index">
+                <div class="form-group">
+                    <label asp-for="@Model.Filter.Name" class="control-label">Nome do Vendedor</label>
+                    <input asp-for="@Model.Filter.Name" class="form-control" />
+                </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th width="5%">
-                    #
-                </th>
-                <th>
-                    Data
-                </th>
-                  <th>
-                    Valor da Venda
-                </th>
-                  <th>
-                    Status
-                </th>
-                  <th>
-                    Id Vendedor
-                </th>
-                 
-                <th width="1%"></th>
-            </tr>
-        </thead>
+                <div class="form-group mt-4">
+                    <label asp-for="@Model.Filter.DateStart" class="control-label">Data de Início</label>
+                    <input asp-for="@Model.Filter.DateStart" class="form-control" />
+                </div>
 
-        <tbody>
-            @foreach (var item in Model) {
-                    <tr>
-                         <td>
-                            @item.Id
-                        </td>
-                        <td>
-                            @item.DateString
-                        </td>
-                        <td>
-                            @item.Amount.ToString("C", new CultureInfo("pt-Br"))
-                        </td>
-                        <td>
-                            @item.Status
-                        </td>
-                        <td>
-                            @item.Seller.Name
-                        </td>
-                       
-                        <td class="text-nowrap">
-                            <div class="btn-group" role="group">
-                            <i class="bi bi-three-dots-vertical" style="font-size: 1.2rem;" data-bs-toggle="dropdown"></i>
-                                <div class="dropdown-menu">
-                                    <a asp-action="Details"  asp-route-id="@item.Id" class="dropdown-item">Detalhes</a>
-                                    <a asp-action="Edit" asp-route-id="@item.Id"class="dropdown-item">Editar</a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id"class="dropdown-item">Deletar</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+                <div class="form-group mt-4">
+                    <label asp-for="@Model.Filter.DateEnd" class="control-label">Data Final</label>
+                    <input asp-for="@Model.Filter.DateEnd" class="form-control" />
+                </div>
+
+                <div class="form-group mt-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="@Model.Filter.AllPeriods" value="false" />
+                        <label class="form-check-label" asp-for="@Model.Filter.AllPeriods">
+                            Usar data para filtragem
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="@Model.Filter.AllPeriods" value="true" />
+                        <label class="form-check-label" asp-for="@Model.Filter.AllPeriods">
+                            Não usar data para filtragem
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="@Model.Filter.Status" value="@SalesRecordsGroupType.Department" />
+                        <label class="form-check-label" asp-for="@Model.Filter.Status">
+                            Filtrar por Departamento
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="@Model.Filter.Status" value="@SalesRecordsGroupType.Status" />
+                        <label class="form-check-label" asp-for="@Model.Filter.Status">
+                            Filtrar por Status
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="@Model.Filter.Status" value="@SalesRecordsGroupType.Seller" />
+                        <label class="form-check-label" asp-for="@Model.Filter.Status">
+                            Filtrar por Vendedor
+                        </label>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="d-flex align-right">
+                    <button type="submit" class="btn btn-outline-primary mt-2" style="font-size:1.0rem">
+                        Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="container-box content-divisor">
+            @foreach (var group in Model.SalesRecordsGroups)
+            {
+                <h5>
+                    @(Model.Filter.Status == SalesRecordsGroupType.Department ?
+                        string.Format("Departamento - {0}", group.Name) :
+                        Model.Filter.Status == SalesRecordsGroupType.Status ?
+                        string.Format("Status - {0}", group.Name) :
+                        string.Format("Vendedor - {0}", group.Name))
+
+                    <small>(@group.Counter)</small>
+                </h5>
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="table-active">
+                            <th width="1%">#</th>
+                            <th>Vendedor</th>
+                            <th>Data</th>
+                            <th>Valor da Venda</th>
+                            <th>Status</th>
+                            <th>Departamento</th>
+                            <th width="1%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in group.SalesRecords)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@item.Id.ToString("D2")</strong>
+                                </td>
+                                <td>
+                                    @item.SellerName
+                                </td>
+                                <td>
+                                    @item.DateString
+                                </td>
+                                <td>
+                                    @item.Amount.ToString("C", new CultureInfo("pt-Br"))
+                                </td>
+                                <td>
+                                    @item.Status.GetDescription()
+                                </td>
+                                <td>
+                                    @item.DepartmentName
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <i class="bi bi-three-dots-vertical" style="font-size: 1.2rem" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+                                            <a class="dropdown-item" asp-action="Delete" asp-route-id="@item.Id">Excluir</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             }
-        </tbody>
-    </table>
+        </div>
+    </div>
 </div>
+
+<style>
+    .container-fluid-content {
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        max-width: 80% !important;
+    }
+
+    .container-box {
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 4px;
+        border-color: #e7e7e7;
+        padding: 20px;
+    } 
+
+    .align-right {
+        flex-direction: row-reverse;
+    }
+
+    .dropdown-toggle {
+        font-size: 1.4rem;
+    }
+
+    .filter-divisor {
+        flex-basis: 20%;
+        margin-right: 16px;
+        height: fit-content
+    }
+
+    .content-divisor {
+        flex-basis: 80%
+    }
+
+    td, th {
+        text-align: left !important;
+    }
+
+    tbody > tr:nth-of-type(even) > * {
+        background-color: rgba(0,0,0,0.05);
+        color: #55595c;
+    }
+</style>
 

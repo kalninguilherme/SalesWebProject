@@ -21,7 +21,7 @@ namespace SalesWebProject.Controllers
         public ActionResult Index()
         {
 
-            List<SellersMainViewModel> groupedSellers = (from m in _context.Sellers
+            List<SellersMainViewModel> groupedSellers = (from m in _context.Sellers.AsNoTracking()
                                                          group m by new { m.Department.Id, m.Department.Name } into g
                                                          orderby g.Key.Name
                                                          select new SellersMainViewModel

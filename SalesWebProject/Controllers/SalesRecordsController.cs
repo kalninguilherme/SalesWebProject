@@ -22,57 +22,88 @@ namespace SalesWebProject.Controllers
             _context = context;
         }
 
-        // Organizar os view das vendas
-        public ActionResult Index()
-        {
-            List<SalesRecordsViewModel> list = (from m in _context.SalesRecord
-                                                select new SalesRecordsViewModel
-                                                {
-                                                    Id = m.Id,
-                                                    Date = m.Date,
-                                                    Amount = m.Amount,
-                                                    Status = m.Status,
-                                                    Seller = new Seller
-                                                    {
-                                                        Id = m.Seller.Id,
-                                                        Name = m.Seller.Name
-                                                    }
-
-                                                }).ToList();
-
-            return View(list);
-        }
-
-        [HttpGet]
-        public ActionResult Details(int? id)
+        public ActionResult Index(SalesRecordsMainViewModel viewModel)
         {
 
-            if (id == 0 || id == null)
-            {
-                return RedirectToAction(nameof(Error), new { message = string.Format("Identificador #{0} não encontrado", id) });
+            SalesRecordsGroupType status = viewModel.Filter.Status;
 
+            var tmpQuery = from m in _context.SalesRecord.AsNoTracking()
+                           select new
+                           {
+                               m.Id,
+                               m.Date,
+                               m.Amount,
+                               m.Status,
+                               Seller = new
+                               {
+                                   Id = m.Seller.Id,
+                                   m.Seller.Name,
+                                   m.Seller.DepartmentId,
+                                   DepartmentName = m.Seller.Department.Name
+
+                               },
+                           };
+
+            if (!string.IsNullOrWhiteSpace(viewModel.Filter.Name))
+            {
+                tmpQuery = tmpQuery.Where(m => m.Seller.Name.Contains(viewModel.Filter.Name));
             }
 
-            var saleRecord = _context.SalesRecord.Include(m => m.Seller).FirstOrDefault(m => m.Id == id);
-            if (saleRecord == null)
+            if (!viewModel.Filter.AllPeriods)
             {
-                return RedirectToAction(nameof(Error), new { message = "Vendedor não encontrado" });
-            }
-
-            var salesRecordView = new SalesRecordsViewModel
-            {
-                Id = saleRecord.Id,
-                Date = saleRecord.Date,
-                Amount = saleRecord.Amount,
-                Status = saleRecord.Status,
-                Seller = new Seller
+                if (viewModel.Filter.DateStart != null)
                 {
-                    Id = saleRecord.Seller.Id,
-                    Name = saleRecord.Seller.Name
+                    tmpQuery = tmpQuery.Where(m => m.Date >= viewModel.Filter.DateStart);
                 }
+
+                if (viewModel.Filter.DateEnd != null)
+                {
+                    tmpQuery = tmpQuery.Where(m => m.Date <= viewModel.Filter.DateEnd);
+                }
+            }
+
+            var salesRecords = new SalesRecordsMainViewModel
+            {
+
+                SalesRecordsGroups = (from m in tmpQuery.ToList()
+                                      group m by
+
+                                      status == SalesRecordsGroupType.Department ?
+                                      new { Id = m.Seller.DepartmentId, Name = m.Seller.DepartmentName } :
+                                      status == SalesRecordsGroupType.Status ?
+                                      new { Id = (int)m.Status, Name = m.Status.ToString() } :
+                                      new { Id = m.Seller.Id, Name = m.Seller.Name }
+                                      into g
+
+                                      select new SalesRecordsGroupedViewModel
+                                      {
+                                          Name = status == SalesRecordsGroupType.Status ?
+                                          ((SaleStatusEnum)Enum.Parse(typeof(SaleStatusEnum), g.Key.Name)).GetDescription() :
+                                          g.Key.Name,
+
+                                          Counter = g.Count(m => status == SalesRecordsGroupType.Department ?
+                                          m.Seller.DepartmentId == g.Key.Id :
+                                          status == SalesRecordsGroupType.Status ?
+                                          (int)m.Status == g.Key.Id :
+                                          m.Seller.Id == g.Key.Id),
+
+                                          SalesRecords = (from m in g.ToList()
+                                                          orderby m.Seller.Name
+                                                          select new SalesRecordsViewModel
+                                                          {
+                                                              Id = m.Id,
+                                                              Date = m.Date,
+                                                              Amount = m.Amount,
+                                                              Status = m.Status,
+                                                              SellerName = m.Seller.Name,
+                                                              DepartmentName = m.Seller.DepartmentName
+                                                          }).ToList()
+                                      }).ToList(),
+
+                Filter = viewModel.Filter
             };
 
-            return View(salesRecordView);
+            return View(salesRecords);
         }
 
         [HttpGet]
@@ -136,54 +167,67 @@ namespace SalesWebProject.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(DepartmentsViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(SalesRecordsViewModel viewModel)
         {
-            var department = _context.Departments.FirstOrDefault(m => m.Id == viewModel.Id);
-            if (department == null)
+            var saleRecord = _context.SalesRecord.FirstOrDefault(m => m.Id == viewModel.Id);
+
+            if (saleRecord == null)
             {
-                throw new Exception("Departamento não encontrado");
+                throw new Exception("Venda não encontrada");
             }
 
-            department.Name = viewModel.Name;
+            saleRecord.Date = viewModel.Date;
+            saleRecord.Amount = viewModel.Amount;
+            saleRecord.Status = viewModel.Status;
+            saleRecord.SellerId = viewModel.SellerId;
+
 
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
-
-        public IActionResult Delete(int? id)
+        [HttpGet]
+        public ActionResult Delete(int id)
         {
-            var department = _context.Departments.FirstOrDefault(m => m.Id == id);
-            if (department == null)
+            var saleRecord = _context.SalesRecord.Include(m => m.Seller).FirstOrDefault(m => m.Id == id);
+            if (saleRecord == null)
             {
-                throw new Exception("Departamento não encontrado");
+                throw new Exception("Venda não encontrada");
             }
 
-            var item = new DepartmentsViewModel
+            var viewModel = new SalesRecordsViewModel
             {
-                Id = department.Id,
-                Name = department.Name,
+                Id = saleRecord.Id,
+                Date = saleRecord.Date,
+                Status = saleRecord.Status,
+                Amount = saleRecord.Amount,
+                SellerName = saleRecord.Seller.Name,
             };
 
-            return View(item);
+            return View(viewModel);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(SalesRecordsViewModel viewModel)
         {
-            if (_context.Departments == null)
+            try
             {
-                return Problem();
-            }
-            var department = _context.Departments.Find(id);
-            if (department != null)
-            {
-                _context.Departments.Remove(department);
-            }
+                var saleRecord = _context.SalesRecord.FirstOrDefault(m => m.Id == viewModel.Id);
+                if (saleRecord == null)
+                {
+                    throw new Exception("Vendedor não encontrado");
+                }
+                _context.SalesRecord.Remove(saleRecord);
+                _context.SaveChanges();
 
-            _context.SaveChanges();
-            return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                return RedirectToAction(nameof(Error), new { message = "Não foi possível deletar este item em razão de chaves primárias no banco de dados" });
+            }
         }
 
         private bool DepartmentExists(int id)
